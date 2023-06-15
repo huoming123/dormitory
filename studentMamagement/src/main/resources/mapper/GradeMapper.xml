@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.GradeMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.Grade" id="GradeMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="buildName" column="build_name" jdbcType="VARCHAR"/>
+        <result property="dormitoryNo" column="dormitory_no" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="bed" column="bed" jdbcType="NUMERIC"/>
+        <result property="floor" column="floor" jdbcType="NUMERIC"/>
+        <result property="wall" column="wall" jdbcType="NUMERIC"/>
+        <result property="toilet" column="toilet" jdbcType="NUMERIC"/>
+        <result property="layout" column="layout" jdbcType="NUMERIC"/>
+        <result property="year" column="year" jdbcType="INTEGER"/>
+        <result property="month" column="month" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="GradeMap">
+        select
+          id, build_name, dormitory_no, created_at, created_by, bed, floor, wall, toilet, layout, year, month
+        from grade
+        where id = #{id}
+    </select>
+
+    
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into grade(build_name, dormitory_no, created_at, created_by, bed, floor, wall, toilet, layout, year, month)
+        values (#{buildName}, #{dormitoryNo}, now(), #{createdBy}, #{bed}, #{floor}, #{wall}, #{toilet}, #{layout}, #{year}, #{month})
+    </insert>
+
+   
+    <!--通过主键修改数据-->
+    <update id="update">
+        update grade
+        <set>
+            <if test="buildName != null and buildName != ''">
+                build_name = #{buildName},
+            </if>
+            <if test="dormitoryNo != null and dormitoryNo != ''">
+                dormitory_no = #{dormitoryNo},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="bed != null">
+                bed = #{bed},
+            </if>
+            <if test="floor != null">
+                floor = #{floor},
+            </if>
+            <if test="wall != null">
+                wall = #{wall},
+            </if>
+            <if test="toilet != null">
+                toilet = #{toilet},
+            </if>
+            <if test="layout != null">
+                layout = #{layout},
+            </if>
+            <if test="year != null">
+                year = #{year},
+            </if>
+            <if test="month != null">
+                month = #{month},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from grade where id = #{id}
+    </delete>
+    <!--用select进行分页查询-->
+    <select id="getPageListByCondition" resultMap="GradeMap">
+        select *  from grade where created_at is not null
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name =  #{page.key.buildName}
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+
+        <if test="page.key.year != null ">
+            and  year = #{page.key.year}
+        </if>
+        <if test="page.key.month != null ">
+            and  month = #{page.key.month}
+        </if>
+        <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+    <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from grade where created_at is not null
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name =  #{page.key.buildName}
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+        <if test="page.key.year != null ">
+            and  year = #{page.key.year}
+        </if>
+        <if test="page.key.month != null ">
+            and  month = #{page.key.month}
+        </if>
+    </select>
+</mapper>

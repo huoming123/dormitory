@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.DormitoryMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.Dormitory" id="DormitoryMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="dormitoryNo" column="dormitory_no" jdbcType="VARCHAR"/>
+        <result property="images" column="images" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="buildName" column="build_name" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DormitoryMap">
+        select
+          id, dormitory_no, images, created_at, created_by, build_name, type
+        from dormitory
+        where id = #{id}
+    </select>
+
+    
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into dormitory(dormitory_no, images, created_at, created_by, build_name, type)
+        values (#{dormitoryNo}, #{images}, now(), #{createdBy}, #{buildName}, #{type})
+    </insert>
+
+   
+    <!--通过主键修改数据-->
+    <update id="update">
+        update dormitory
+        <set>
+            <if test="dormitoryNo != null and dormitoryNo != ''">
+                dormitory_no = #{dormitoryNo},
+            </if>
+            <if test="images != null and images != ''">
+                images = #{images},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="buildName != null and buildName != ''">
+                build_name = #{buildName},
+            </if>
+            <if test="type != null">
+                type = #{type},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from dormitory where id = #{id}
+    </delete>
+    <!--根据宿舍号获取宿舍数据-->
+    <select id="getDormitory" resultMap="DormitoryMap">
+        select * from dormitory where dormitory_no =#{dormitoryNo} and build_name =#{build};
+    </select>
+    <!--根据宿舍楼获取宿舍数据-->
+    <select id="getDormitoryList" resultMap="DormitoryMap">
+        select * from dormitory where build_name =#{buildName} ;
+    </select>
+
+    <!--用select进行分页查询-->
+    <select id="getPageListByCondition" resultMap="DormitoryMap">
+        select *  from dormitory where created_at is not null
+
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name = #{page.key.buildName}
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+        <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+    <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from dormitory where created_at is not null
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name = #{page.key.buildName}
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+    </select>
+    <select id="getDormitoryByBuild" resultMap="DormitoryMap">
+         select * from dormitory where build_name=#{buildName} and dormitory_no=#{dormitoryNo};
+    </select>
+
+</mapper>

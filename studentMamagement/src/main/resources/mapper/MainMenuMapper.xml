@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.MainMenuMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.MainMenu" id="MainMenuMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="mainName" column="main_name" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="VARCHAR"/>
+        <result property="seq" column="seq" jdbcType="INTEGER"/>
+        <collection property="submenuList" columnPrefix="sub_" resultMap="SubmenuMap"/>
+    </resultMap>
+    <resultMap id="SubmenuMap" type="com.design.studentMamagement.pojo.Submenu">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="mainId" column="main_id" jdbcType="INTEGER"/>
+        <result property="seq" column="seq" jdbcType="INTEGER"/>
+        <result property="menuName" column="menu_name" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="menuUrl" column="menu_url" jdbcType="VARCHAR"/>
+    </resultMap>
+    <!--查询单个-->
+    <select id="queryById" resultMap="MainMenuMap">
+        select
+          id, main_name, created_by, created_at, updated_at, updated_by, deleted_by, deleted_at, seq
+        from main_menu
+        where id = #{id}
+    </select>
+    <!--新增所有列-->
+    <insert id="addMenu" keyProperty="id" useGeneratedKeys="true">
+        insert into main_menu(main_name, created_by, created_at, updated_at, updated_by, seq)
+        values (#{mainName}, #{createdBy}, now(), now(), #{updatedBy}, #{seq})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="updateMainMenu">
+        update main_menu
+        <set>
+            <if test="mainName != null and mainName != ''">
+                main_name = #{mainName},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+
+            <if test="deletedBy != null and deletedBy != ''">
+                deleted_by = #{deletedBy},
+            </if>
+            <if test="deletedAt != null">
+                deleted_at = #{deletedAt},
+            </if>
+            <if test="seq != null">
+                seq = #{seq},
+            </if>
+            updated_at =now(),
+            updated_by = 'developer'
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getMenuTree" resultMap="MainMenuMap">
+        SELECT a.*,
+        b.id as sub_id,
+        b.main_id as sub_main_id,
+        b.seq as sub_seq,
+        b.type as sub_type,
+        b.menu_name as sub_menu_name,
+        b.menu_url as sub_menu_url
+        FROM  main_menu a LEFT JOIN submenu b on a.id =b.main_id
+         where b.type=#{type}
+        order by a.seq,b.seq
+    </select>
+</mapper>
+

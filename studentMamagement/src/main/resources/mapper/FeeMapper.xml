@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.FeeMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.Fee" id="FeeMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="buildName" column="build_name" jdbcType="VARCHAR"/>
+        <result property="dormitoryNo" column="dormitory_no" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="year" column="year" jdbcType="INTEGER"/>
+        <result property="water" column="water" jdbcType="DOUBLE"/>
+        <result property="fee" column="fee" jdbcType="DOUBLE"/>
+        <result property="electricFee" column="electric_fee" jdbcType="DOUBLE"/>
+        <result property="waterFee" column="water_fee" jdbcType="DOUBLE"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="ele" column="ele" jdbcType="DOUBLE"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="FeeMap">
+        select
+          id, build_name, dormitory_no, created_at, created_by, year, water, fee, electric_fee, water_fee, status, ele
+        from fee
+        where id = #{id}
+    </select>
+
+    
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into fee(build_name, dormitory_no, created_at, created_by, year, water, fee, electric_fee, water_fee, status, ele)
+        values (#{buildName}, #{dormitoryNo}, now(), #{createdBy}, #{year}, #{water}, #{fee}, #{electricFee}, #{waterFee},0, #{ele})
+    </insert>
+
+   
+    <!--通过主键修改数据-->
+    <update id="update">
+        update fee
+        <set>
+            <if test="buildName != null and buildName != ''">
+                build_name = #{buildName},
+            </if>
+            <if test="dormitoryNo != null and dormitoryNo != ''">
+                dormitory_no = #{dormitoryNo},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="year != null">
+                year = #{year},
+            </if>
+            <if test="water != null">
+                water = #{water},
+            </if>
+            <if test="fee != null">
+                fee = #{fee},
+            </if>
+            <if test="electricFee != null">
+                electric_fee = #{electricFee},
+            </if>
+            <if test="waterFee != null">
+                water_fee = #{waterFee},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="ele != null">
+                ele = #{ele},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from fee where id = #{id}
+    </delete>
+    <!--用select进行分页查询-->
+    <select id="getPageListByCondition" resultMap="FeeMap">
+        select *  from fee where created_at is not null
+
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name = #{page.key.buildName}
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+        <if test="page.key.status != null">
+            and  status = #{page.key.status}
+        </if>
+        <if test="page.key.year != null">
+            and  year = #{page.key.year}
+        </if>
+        <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+    <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from fee where created_at is not null
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name = #{page.key.buildName}
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+        <if test="page.key.status != null">
+            and  status = #{page.key.status}
+        </if>
+        <if test="page.key.year != null">
+            and  year = #{page.key.year}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.OutLateMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.OutLate" id="OutLateMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userNo" column="user_no" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="dormitoryNo" column="dormitory_no" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="buildName" column="build_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="OutLateMap">
+        select
+          id, user_no, user_name, created_at, telephone, dormitory_no, created_by, build_name
+        from out_late
+        where id = #{id}
+    </select>
+
+    
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into out_late(user_no, user_name, created_at, telephone, dormitory_no, created_by, build_name)
+        values (#{userNo}, #{userName}, now(), #{telephone}, #{dormitoryNo}, #{createdBy}, #{buildName})
+    </insert>
+
+   
+    <!--通过主键修改数据-->
+    <update id="update">
+        update out_late
+        <set>
+            <if test="userNo != null and userNo != ''">
+                user_no = #{userNo},
+            </if>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="telephone != null and telephone != ''">
+                telephone = #{telephone},
+            </if>
+            <if test="dormitoryNo != null and dormitoryNo != ''">
+                dormitory_no = #{dormitoryNo},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="buildName != null and buildName != ''">
+                build_name = #{buildName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from out_late where id = #{id}
+    </delete>
+    <!--用select进行分页查询-->
+    <select id="getPageListByCondition" resultMap="OutLateMap">
+        select *  from out_late where created_at is not null
+
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name = #{page.key.buildName}
+        </if>
+        <if test="page.key.userNo != null and page.key.userNo != ''">
+            and  user_no = #{page.key.userNo}
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+        <if test="page.key.createdAt != null and page.key.createdAt != ''">
+            and  created_at = #{page.key.createdAt}
+        </if>
+        <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+    <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from out_late where created_at is not null
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name = #{page.key.buildName}
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+        <if test="page.key.createdAt != null and page.key.createdAt != ''">
+            and  created_at = #{page.key.createdAt}
+        </if>
+        <if test="page.key.userNo != null and page.key.userNo != ''">
+            and  user_no = #{page.key.userNo}
+        </if>
+    </select>
+</mapper>

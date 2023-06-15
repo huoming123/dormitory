@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.VisitorMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.Visitor" id="VisitorMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="reason" column="reason" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="buildName" column="build_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="VisitorMap">
+        select
+          id, user_name, reason, telephone, created_at, created_by, build_name
+        from visitor
+        where id = #{id}
+    </select>
+
+
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into visitor(user_name, reason, telephone, created_at, created_by, build_name)
+        values (#{userName}, #{reason}, #{telephone}, now(), #{createdBy}, #{buildName})
+    </insert>
+        <!--用select进行分页查询-->
+      <select id="getPageListByCondition" resultMap="VisitorMap">
+       <!-- <if test="page.key.userName != null and page.key.userName != ''">
+            and  a.user_name like '%' #{page.key.userName}  '%'
+        </if>
+        <if test="page.key.year != null ">
+            <bind name="pattern" value="'%' + page.key.year + '%'" />
+            and a.created_at like #{pattern}
+        </if>-->
+        select *  from visitor where created_at is not null
+
+          <if test="page.key.userName != null and page.key.userName != ''">
+              and  user_name like '%' #{page.key.userName}  '%'
+          </if>
+          <if test="page.key.buildName != null and page.key.buildName != ''">
+              and  build_name =  #{page.key.buildName}
+          </if>
+          <if test="page.key.createdAt != null and page.key.createdAt != ''">
+              and  created_at like '%' #{page.key.createdAt}  '%'
+          </if>
+            <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+      
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+     <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from visitor   where created_at is not null
+        <if test="page.key.userName != null and page.key.userName != ''">
+            and  user_name like '%' #{page.key.userName}  '%'
+        </if>
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name =  #{page.key.buildName}
+        </if>
+        <if test="page.key.createdAt != null and page.key.createdAt != ''">
+            and  created_at like '%' #{page.key.createdAt}  '%'
+        </if>
+    </select>
+
+   
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update visitor
+        <set>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="reason != null and reason != ''">
+                reason = #{reason},
+            </if>
+            <if test="telephone != null and telephone != ''">
+                telephone = #{telephone},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="buildName != null and buildName != ''">
+                build_name = #{buildName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from visitor where id = #{id}
+    </delete>
+
+</mapper>
+

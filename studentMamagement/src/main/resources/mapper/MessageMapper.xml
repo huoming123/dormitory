@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.MessageMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.Message" id="MessageMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="message" column="message" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="dorMessage" column="dor_message" jdbcType="VARCHAR"/>
+        <result property="dormitory" column="dormitory" jdbcType="VARCHAR"/>
+        <result property="updateAt" column="update_at" jdbcType="TIMESTAMP"/>
+        <result property="admMessage" column="adm_message" jdbcType="VARCHAR"/>
+        <result property="userNo" column="user_no" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="MessageMap">
+        select
+          id, message, created_at, created_by, dor_message, dormitory, update_at, adm_message, user_no
+        from message
+        where id = #{id}
+    </select>
+
+    
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into message(message, created_at, created_by, dor_message, dormitory, update_at, adm_message, user_no)
+        values (#{message},now(), #{createdBy}, #{dorMessage}, #{dormitory}, #{updateAt}, #{admMessage}, #{userNo})
+    </insert>
+
+   
+    <!--通过主键修改数据-->
+    <update id="update">
+        update message
+        <set>
+            <if test="message != null and message != ''">
+                message = #{message},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="dorMessage != null and dorMessage != ''">
+                dor_message = #{dorMessage},
+            </if>
+            <if test="dormitory != null and dormitory != ''">
+                dormitory = #{dormitory},
+            </if>
+            <if test="admMessage != null and admMessage != ''">
+                adm_message = #{admMessage},
+            </if>
+            <if test="userNo != null and userNo != ''">
+                user_no = #{userNo},
+            </if>
+            update_at = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from message where id = #{id}
+    </delete>
+    <!--用select进行分页查询-->
+    <select id="getPageListByCondition" resultMap="MessageMap">
+        select *  from message where created_at is not null
+        <if test="page.key.createdBy != null and page.key.createdBy != ''">
+            and  created_by =  #{page.key.createdBy}
+        </if>
+        <if test="page.key.createdAt != null and page.key.createdAt != ''">
+            and  created_at like '%' #{page.key.createdAt} '%'
+        </if>
+        <if test="page.key.userNo != null and page.key.userNo != ''">
+            and  user_no =  #{page.key.userNo}
+        </if>
+        <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+    <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from message where created_at is not null
+        <if test="page.key.createdBy != null and page.key.createdBy != ''">
+            and  created_by =  #{page.key.createdBy}
+        </if>
+        <if test="page.key.createdAt != null and page.key.createdAt != ''">
+            and  created_at like '%' #{page.key.createdAt} '%'
+        </if>
+        <if test="page.key.userNo != null and page.key.userNo != ''">
+            and  user_no =  #{page.key.userNo}
+        </if>
+    </select>
+</mapper>

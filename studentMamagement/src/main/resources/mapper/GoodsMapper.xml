@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.GoodsMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.Goods" id="GoodsMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="goodsName" column="goods_name" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="buildName" column="build_name" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="dormitoryNo" column="dormitory_no" jdbcType="VARCHAR"/>
+        <result property="images" column="images" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="GoodsMap">
+        select
+          id, user_name, goods_name, telephone, created_at, created_by, build_name, type, dormitory_no, images
+        from goods
+        where id = #{id}
+    </select>
+
+
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into goods(user_name, goods_name, telephone, created_at, created_by, build_name, type, dormitory_no, images)
+        values (#{userName}, #{goodsName}, #{telephone},now(), #{createdBy}, #{buildName}, #{type}, #{dormitoryNo}, #{images})
+    </insert>
+        <!--用select进行分页查询-->
+      <select id="getPageListByCondition" resultMap="GoodsMap">
+        select *  from goods where created_at is not  null
+          <if test="page.key.goodsName != null and page.key.goodsName != ''">
+              and  goods_name like '%'#{page.key.goodsName}'%'
+          </if>
+          <if test="page.key.buildName != null and page.key.buildName != ''">
+              and  build_name = #{page.key.buildName}
+          </if>
+          <if test="page.key.userName != null and page.key.userName != ''">
+              and  user_name like '%' #{page.key.userName} '%'
+          </if>
+          <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+              and  dormitory_no = #{page.key.dormitoryNo}
+          </if>
+            <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+      
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+     <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from goods  where created_at is not  null
+        <if test="page.key.goodsName != null and page.key.goodsName != ''">
+            and  goods_name like '%' #{page.key.goodsName} '%'
+        </if>
+        <if test="page.key.buildName != null and page.key.buildName != ''">
+            and  build_name = #{page.key.buildName}
+        </if>
+        <if test="page.key.userName != null and page.key.userName != ''">
+            and  user_name like '%'#{page.key.userName}'%'
+        </if>
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+    </select>
+
+   
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update goods
+        <set>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="goodsName != null and goodsName != ''">
+                goods_name = #{goodsName},
+            </if>
+            <if test="telephone != null and telephone != ''">
+                telephone = #{telephone},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="buildName != null and buildName != ''">
+                build_name = #{buildName},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="dormitoryNo != null and dormitoryNo != ''">
+                dormitory_no = #{dormitoryNo},
+            </if>
+            <if test="images != null and images != ''">
+                images = #{images},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from goods where id = #{id}
+    </delete>
+
+</mapper>
+

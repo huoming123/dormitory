@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.DormitoryLiveMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.DormitoryLive" id="DormitoryLiveMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="year" column="year" jdbcType="INTEGER"/>
+        <result property="dormitoryNo" column="dormitory_no" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="buildName" column="build_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DormitoryLiveMap">
+        select
+          id, user_id, year, dormitory_no, created_at, build_name
+        from dormitory_live
+        where id = #{id}
+    </select>
+
+
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into dormitory_live(user_id, year, dormitory_no, created_at, build_name)
+        values (#{userId}, #{year}, #{dormitoryNo}, #{createdAt}, #{buildName})
+    </insert>
+        <!--用select进行分页查询-->
+      <select id="getPageListByCondition" resultMap="DormitoryLiveMap">
+       <!-- <if test="page.key.userName != null and page.key.userName != ''">
+            and  a.user_name like '%' #{page.key.userName}  '%'
+        </if>
+        <if test="page.key.year != null ">
+            <bind name="pattern" value="'%' + page.key.year + '%'" />
+            and a.created_at like #{pattern}
+        </if>-->
+        select *  from dormitory_live
+            <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+      
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+     <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from dormitory_live   
+    </select>
+
+   
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update dormitory_live
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="year != null">
+                year = #{year},
+            </if>
+            <if test="dormitoryNo != null and dormitoryNo != ''">
+                dormitory_no = #{dormitoryNo},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="buildName != null and buildName != ''">
+                build_name = #{buildName},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from dormitory_live where id = #{id}
+    </delete>
+
+</mapper>
+

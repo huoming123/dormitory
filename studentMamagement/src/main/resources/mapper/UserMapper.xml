@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.UserMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.User" id="UserMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userNo" column="user_no" jdbcType="VARCHAR"/>
+        <result property="sex" column="sex" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="images" column="images" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="professional" column="professional" jdbcType="VARCHAR"/>
+        <result property="classes" column="classes" jdbcType="VARCHAR"/>
+        <result property="build" column="build" jdbcType="VARCHAR"/>
+        <result property="dormitoryNo" column="dormitory_no" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="count" column="count" jdbcType="INTEGER"/>
+        <result property="year" column="year" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="UserMap">
+        select
+          *
+        from user
+        where id = #{id}
+    </select>
+
+
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into user(user_no, sex, user_name, images, password, created_at, role, telephone, professional, classes, build, dormitory_no, created_by,status)
+        values (#{userNo}, #{sex}, #{userName}, #{images}, #{password}, now(), #{role}, #{telephone}, #{professional}, #{classes}, #{build}, #{dormitoryNo}, #{createdBy},#{status})
+    </insert>
+        <!--用select进行分页查询-->
+      <select id="getPageListByCondition" resultMap="UserMap">
+        select *  from user where created_at is not null
+          <if test="page.key.role != null and page.key.role != ''">
+              and  role  = #{page.key.role}
+          </if>
+          <if test="page.key.userNo != null and page.key.userNo != ''">
+              and  user_no  like '%' #{page.key.userNo} '%'
+          </if>
+          <if test="page.key.userName != null and page.key.userName != ''">
+              and  user_name like '%' #{page.key.userName} '%'
+          </if>
+          <if test="page.key.build != null and page.key.build != ''">
+              and  build = #{page.key.build}
+          </if>
+          <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+              and  dormitory_no = #{page.key.dormitoryNo}
+          </if>
+          <if test="page.key.status != null">
+              and  status = #{page.key.status}
+          </if>
+            <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+     <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from user where created_at is not null
+        <!--根据角色搜索 角色不为空 进入搜索条件-->
+        <if test="page.key.role != null and page.key.role != ''">
+            and  role  = #{page.key.role}
+        </if>
+        <!--根据学号搜索 学号不为空 进入搜索条件-->
+        <if test="page.key.userNo != null and page.key.userNo != ''">
+            and  user_no  like '%' #{page.key.userNo} '%'
+        </if>
+        <!--根据用户名搜索 用户名不为空 进入搜索条件-->
+        <if test="page.key.userName != null and page.key.userName != ''">
+            and  user_name like '%' #{page.key.userName} '%'
+        </if>
+        <!--根据宿舍楼搜索 宿舍楼不为空 进入搜索条件-->
+        <if test="page.key.build != null and page.key.build != ''">
+            and  build = #{page.key.build}
+        </if>
+        <!--根据宿舍号搜索 宿舍号不为空 进入搜索条件-->
+        <if test="page.key.dormitoryNo != null and page.key.dormitoryNo != ''">
+            and  dormitory_no = #{page.key.dormitoryNo}
+        </if>
+        <!--根据状态搜索 状态不为空 进入搜索条件-->
+        <if test="page.key.status != null">
+            and  status = #{page.key.status}
+        </if>
+    </select>
+
+   
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update user
+        <set>
+            <if test="userNo != null and userNo != ''">
+                user_no = #{userNo},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="images != null and images != ''">
+                images = #{images},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="role != null and role != ''">
+                role = #{role},
+            </if>
+            <if test="telephone != null and telephone != ''">
+                telephone = #{telephone},
+            </if>
+            <if test="professional != null and professional != ''">
+                professional = #{professional},
+            </if>
+            <if test="classes != null and classes != ''">
+                classes = #{classes},
+            </if>
+            <if test="build != null and build != ''">
+                build = #{build},
+            </if>
+            <if test="dormitoryNo != null and dormitoryNo != ''">
+                dormitory_no = #{dormitoryNo},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from user where id = #{id}
+    </delete>
+    <!--根据学号跟角色获取数据-->
+    <select id="getByUserNo" resultMap="UserMap">
+         select * from user where user_no =#{userNo} and role =#{role};
+    </select>
+    <!--根据宿舍号跟宿舍楼获取数据-->
+    <select id="getByDormitoryNo" resultMap="UserMap">
+        select * from user where dormitory_no=#{dormitoryNo} and status= 1  and build =#{build};
+    </select>
+    <!--获取宿管数据-->
+    <select id="getDormitoryList" resultMap="UserMap">
+        select * from user where role='dormitory' and status=1;
+    </select>
+    <!--根据年份统计入住的学生数量-->
+    <select id="getUserByYear"  resultMap="UserMap">
+          select  date_format(created_at, '%Y') as year,
+           count(id) as count from user where created_at is not null and role = 'student'
+           GROUP BY year desc
+    </select>
+</mapper>
+

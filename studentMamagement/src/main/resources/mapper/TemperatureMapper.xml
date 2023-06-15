@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.design.studentMamagement.mapper.TemperatureMapper">
+
+    <resultMap type="com.design.studentMamagement.pojo.Temperature" id="TemperatureMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userNo" column="user_no" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="mornRegister" column="morn_register" jdbcType="NUMERIC"/>
+        <result property="noonRegister" column="noon_register" jdbcType="NUMERIC"/>
+        <result property="nightRegister" column="night_register" jdbcType="NUMERIC"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="createdBy" column="created_by" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
+        <result property="day" column="day" jdbcType="VARCHAR"/>
+        <result property="count" column="count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TemperatureMap">
+        select
+          id, user_no, user_name, morn_register, noon_register, night_register, created_at, created_by, status, role
+        from temperature
+        where id = #{id}
+    </select>
+
+    
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into temperature(user_no, user_name, morn_register, noon_register, night_register, created_at, created_by, status, role)
+        values (#{userNo}, #{userName}, #{mornRegister}, #{noonRegister}, #{nightRegister}, #{createdAt}, #{createdBy}, #{status}, #{role})
+    </insert>
+
+   
+    <!--通过主键修改数据-->
+    <update id="update">
+        update temperature
+        <set>
+            <if test="userNo != null and userNo != ''">
+                user_no = #{userNo},
+            </if>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="mornRegister != null">
+                morn_register = #{mornRegister},
+            </if>
+            <if test="noonRegister != null">
+                noon_register = #{noonRegister},
+            </if>
+            <if test="nightRegister != null">
+                night_register = #{nightRegister},
+            </if>
+            <if test="createdAt != null">
+                created_at = #{createdAt},
+            </if>
+            <if test="createdBy != null and createdBy != ''">
+                created_by = #{createdBy},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="role != null and role != ''">
+                role = #{role},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from temperature where id = #{id}
+    </delete>
+    <!--用select进行分页查询-->
+    <select id="getPageListByCondition" resultMap="TemperatureMap">
+        select *  from temperature where created_at is not null
+        <if test="page.key.userNo != null and page.key.userNo != ''">
+            and  user_no =  #{page.key.userNo}
+        </if>
+        <!--用户搜索 如果不为空 则进入搜索条件-->
+        <if test="page.key.userName != null and page.key.userName != ''">
+            and  user_name like '%' #{page.key.userName}  '%'
+        </if>
+
+        <!--体温是否正常搜索 如果不为空 则进入搜索条件-->
+        <if test="page.key.status != null ">
+            and  status = #{page.key.status}
+        </if>
+        <!--角色搜索 如果不为空 则进入搜索条件-->
+        <if test="page.key.role != null and page.key.role != ''">
+            and  role = #{page.key.role}
+        </if>
+        <!--日期搜索 如果不为空 则进入搜索条件-->
+        <if test="page.key.createdAt != null ">
+            and  created_at like '%' #{page.key.createdAt} '%'
+        </if>
+        <!--排序 desc是降序-->
+        order by
+        created_at desc
+        <!--分页查询-->
+        limit  #{page.startNum} , #{page.pageSize}
+    </select>
+    <!--分页查询条数-->
+    <select id="getPageListCount" resultType="int">
+        select count(id) as count from temperature where created_at is not null
+        <if test="page.key.userNo != null and page.key.userNo != ''">
+            and  user_no =  #{page.key.userName}
+        </if>
+        <!--用户搜索 如果不为空 则进入搜索条件-->
+        <if test="page.key.userName != null and page.key.userName != ''">
+            and  user_name like '%' #{page.key.userName}  '%'
+        </if>
+        <!--体温是否正常搜索 如果不为空 则进入搜索条件-->
+        <if test="page.key.status != null ">
+            and  status = #{page.key.status}
+        </if>
+        <!--角色搜索 如果不为空 则进入搜索条件-->
+        <if test="page.key.role != null and page.key.role != ''">
+            and  role = #{page.key.role}
+        </if>
+        <!--日期搜索 如果不为空 则进入搜索条件-->
+        <if test="page.key.createdAt != null ">
+            and  created_at like '%' #{page.key.createdAt} '%'
+        </if>
+    </select>
+    <select id="getTotalByDay" resultMap="TemperatureMap">
+           select  date_format(created_at, '%Y-%m-%d') as day,
+           count(id) as count from temperature where created_at is not null and role ='student'
+            and  created_at between #{startTime}and #{endTime}
+           GROUP BY day
+    </select>
+</mapper>
